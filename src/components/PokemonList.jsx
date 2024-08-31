@@ -4,21 +4,24 @@ import Pokecard from './Pokecard';
 
 const PokemonList = () => {
     const [pokemons, setPokemons] = useState([]);
+    const [filteredPokemons, setFilteredPokemons] = useState([]);
     const [nextUrl, setNextUrl] = useState('https://pokeapi.co/api/v2/pokemon');
     const [prevUrl, setPrevUrl] = useState(null);
-    const [loading, setLoading] = useState(false); // Add a loading state
+    const [loading, setLoading] = useState(false);
+    const [searchQuery, setSearchQuery] = useState(''); // Add a state for search query
 
     const fetchPokemons = async (url) => {
-        setLoading(true); // Start loading
+        setLoading(true);
         try {
             const response = await axios.get(url);
             setPokemons(response.data.results);
+            setFilteredPokemons(response.data.results); // Initially, filtered list is the full list
             setNextUrl(response.data.next);
             setPrevUrl(response.data.previous);
         } catch (error) {
             console.error('Error fetching Pokémon data:', error);
         } finally {
-            setLoading(false); // Stop loading
+            setLoading(false);
         }
     };
 
@@ -26,6 +29,14 @@ const PokemonList = () => {
     useEffect(() => {
         fetchPokemons(nextUrl);
     }, []);
+
+    // Update filteredPokemons whenever pokemons or searchQuery changes
+    useEffect(() => {
+        const filtered = pokemons.filter((pokemon) =>
+            pokemon.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredPokemons(filtered);
+    }, [searchQuery, pokemons]);
 
     const handleNext = () => {
         if (nextUrl) {
@@ -41,16 +52,23 @@ const PokemonList = () => {
 
     return (
         <div className="pokemon-list">
+            <input
+                className='search'
+                type="text"
+                placeholder="Search Pokémon"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+            />
             <div className="pagination-buttons">
                 <button onClick={handlePrev} disabled={!prevUrl || loading}>Previous</button>
                 <button onClick={handleNext} disabled={!nextUrl || loading}>Next</button>
             </div>
             
             <div className="cards-container">
-                {pokemons.map((pokemon) => (
+                {filteredPokemons.map((pokemon) => (
                     <Pokecard
                         key={pokemon.url}
-                        object={{ name: pokemon.name, url: pokemon.url }} // Adjust this if necessary
+                        object={{ name: pokemon.name, url: pokemon.url }}
                     />
                 ))}
             </div>
