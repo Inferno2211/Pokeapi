@@ -17,8 +17,8 @@ A simple Pokémon-themed app built with Vite and React. This app fetches Pokémo
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd <repository-directory>
+   git clone <https://github.com/Inferno2211/Pokeapi.git>
+   cd <poke-api>
    ```
 
 2. **Install dependencies:**
